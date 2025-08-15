@@ -1,4 +1,5 @@
 import Problem from "../models/problems.js";
+import Submission from "../models/submissions.js";
 import User from "../models/user.js";
 import {
 	getLanguageById,
@@ -242,4 +243,21 @@ export const allProblemSolvedbyUser = async(req,res)=>{
 		res.status(500).send("Error finding problem solved by user"+error)
 	}
 	
+}
+
+export const submittedProblems= async (req,res)=>{
+	try {
+		const userId = req.result._id;
+		const problemId= req.params.pid;
+
+		const ans=await Submission.find({userId,problemId})
+		if(ans.length==0){
+			res.status(404).send("No submission is present")
+		}
+		res.status(200).send(ans)
+
+	} catch (error) {
+		res.status(500).send("Error fetching submittedProblems : " +error)
+		
+	}
 }

@@ -49,6 +49,7 @@ const submissionSchema = new Schema({
   }, { 
     timestamps: true
   });
+  submissionSchema.index({userId:1 ,problemId:1 })  //:1 for ascending order  (-1 for decending order)
 
 const Submission= mongoose.model('submission', submissionSchema)
 export default Submission;

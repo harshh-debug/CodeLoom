@@ -91,11 +91,12 @@ export const adminRegister = async (req, res) => {
 	}
 };
 
-export const deleteProfile= async (req,res)=>{
+export const deleteProfile = async (req, res) => {
 	try {
-		const userId= req.result._id;
-		User.findByIdAndDelete
+		const userId = req.result._id;
+		await User.findByIdAndDelete(userId);
 	} catch (error) {
-		
+		res.status(500).send("Internal server Error : "+ error)
 	}
-}
+};
+
