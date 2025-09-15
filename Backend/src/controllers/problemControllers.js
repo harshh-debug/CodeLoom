@@ -225,6 +225,17 @@ export const getProblemById = async (req, res) => {
 		if (!getProblem) {
 			return res.status(404).send("Problem not found");
 		}
+
+		const videos = await SolutionVideo.find({ problemId: id });
+
+		if (videos) {
+			getProblem.secureUrl = secureUrl;
+			getProblem.cloudinaryPublicId = cloudinaryPublicId;
+			getProblem.thumbnailUrl = thumbnailUrl;
+			getProblem.duration = duration;
+
+			return res.status(200).send(getProblem);
+		}
 		res.status(200).send(getProblem);
 	} catch (error) {
 		res.status(500).send(error);

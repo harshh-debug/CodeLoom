@@ -10,6 +10,7 @@ import { problemRouter } from "./routes/problemsRoute.js";
 import { submitRouter } from "./routes/submitRoute.js";
 import cors from 'cors';
 import { aiChattingRouter } from "./routes/aiChatting.js";
+import videoRouter from "./routes/videoRoute.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/user", authRouter);
 app.use("/problem", problemRouter);
 app.use('/submission', submitRouter)
 app.use('/ai', aiChattingRouter)
+app.use('/video',videoRouter)
 
 const initializeConnection = async () => {
 	try {
