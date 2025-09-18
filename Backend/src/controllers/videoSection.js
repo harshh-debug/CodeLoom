@@ -1,12 +1,11 @@
 // const cloudinary = require('cloudinary').v2;
+import { v2 as cloudinary } from "cloudinary";
+
 import Problem from "../models/problems.js";
 import SolutionVideo from "../models/solutionVideo.js";
 import User from "../models/user.js";
 
 // Configure Cloudinary
-
-
-
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -47,7 +46,7 @@ export const generateUploadSignature = async (req, res) => {
       public_id: publicId,
       api_key: process.env.CLOUDINARY_API_KEY,
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      upload_url: `https://api.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/video/upload`,
+      upload_url: `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/video/upload`,
     });
 
   } catch (error) {
@@ -89,18 +88,21 @@ export const saveVideoMetadata = async (req, res) => {
       return res.status(409).json({ error: 'Video already exists' });
     }
 
-    const thumbnailUrl = cloudinary.url(cloudinaryResource.public_id, {
-    resource_type: 'image',  
-    transformation: [
-    { width: 400, height: 225, crop: 'fill' },
-    { quality: 'auto' },
-    { start_offset: 'auto' }  
-    ],
-    format: 'jpg'
-    });
+    // const thumbnailUrl = cloudinary.url(cloudinaryResource.public_id, {
+    // resource_type: 'image',  
+    // transformation: [
+    // { width: 400, height: 225, crop: 'fill' },
+    // { quality: 'auto' },
+    // { start_offset: 'auto' }  
+    // ],
+    // format: 'jpg'
+    // });
 
+    const thumbnailUrl = cloudinary.image(cloudinaryResource.public_id,{resource_type: "video"})
+
+// https://cloudinary.com/documentation/video_effects_and_enhancements#video_thumbnails
     // Create video solution record
-    const videoSolution = new SolutionVideo({
+    const videoSolution = await SolutionVideo.create({
       problemId,
       userId,
       cloudinaryPublicId,
@@ -109,16 +111,14 @@ export const saveVideoMetadata = async (req, res) => {
       thumbnailUrl
     });
 
-    await SolutionVideo.save();
-
 
     res.status(201).json({
       message: 'Video solution saved successfully',
       videoSolution: {
-        id: SolutionVideo._id,
-        thumbnailUrl: SolutionVideo.thumbnailUrl,
-        duration: SolutionVideo.duration,
-        uploadedAt: SolutionVideo.createdAt
+        id: videoSolution._id,
+        thumbnailUrl: videoSolution.thumbnailUrl,
+        duration: videoSolution.duration,
+        uploadedAt: videoSolution.createdAt
       }
     });
 
@@ -131,10 +131,10 @@ export const saveVideoMetadata = async (req, res) => {
 
 export const deleteVideo = async (req, res) => {
   try {
-    const { videoId } = req.params;
+    const { problemId } = req.params;
     const userId = req.result._id;
 
-    const video = await SolutionVideo.findByIdAndDelete(videoId);
+    const video = await SolutionVideo.findOneAndDelete({problemId:problemId})
     
     if (!video) {
       return res.status(404).json({ error: 'Video not found' });

@@ -1,4 +1,5 @@
 import Problem from "../models/problems.js";
+import SolutionVideo from "../models/solutionVideo.js";
 import Submission from "../models/submissions.js";
 import User from "../models/user.js";
 import {
@@ -226,19 +227,21 @@ export const getProblemById = async (req, res) => {
 			return res.status(404).send("Problem not found");
 		}
 
-		const videos = await SolutionVideo.find({ problemId: id });
+		const videos = await SolutionVideo.findOne({ problemId: id });
 
 		if (videos) {
-			getProblem.secureUrl = secureUrl;
-			getProblem.cloudinaryPublicId = cloudinaryPublicId;
-			getProblem.thumbnailUrl = thumbnailUrl;
-			getProblem.duration = duration;
+			const responseData = {
+				...getProblem.toObject(),
+				secureUrl: videos.secureUrl,
+				thumbnailUrl: videos.thumbnailUrl,
+				duration: videos.duration,
+			};
 
-			return res.status(200).send(getProblem);
+			return res.status(200).send(responseData);
 		}
 		res.status(200).send(getProblem);
 	} catch (error) {
-		res.status(500).send(error);
+		res.status(500).send(error.message);
 	}
 };
 

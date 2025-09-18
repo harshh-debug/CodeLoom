@@ -9,6 +9,8 @@ import AdminPanel from "./pages/AdminPanel";
 import AdminCreate from "./components/AdminCreate";
 import AdminDelete from "./components/AdminDelete";
 import ProblemPage from "./pages/ProblemPage";
+import AdminVideo from "./components/AdminVideo";
+import AdminUpload from "./components/AdminUpload";
 // import MonacoEditor from "./pages/MonacoEditor";
 
 const App = () => {
@@ -60,6 +62,26 @@ const App = () => {
 				}
 			/>
 			<Route
+				path="/admin/video"
+				element={
+					isAuthenticated && user?.role === "admin" ? (
+						<AdminVideo />
+					) : (
+						<Navigate to="/" />
+					)
+				}
+			/>
+			<Route
+				path="/admin/upload"
+				element={
+					isAuthenticated && user?.role === "admin" ? (
+						<AdminUpload />
+					) : (
+						<Navigate to="/" />
+					)
+				}
+			/>
+			<Route
 				path="/admin/delete"
 				element={
 					isAuthenticated && user?.role === "admin" ? (
@@ -69,7 +91,17 @@ const App = () => {
 					)
 				}
 			/>
-			<Route path="/problem/:problemId" element={<ProblemPage/>}></Route>
+			<Route
+				path="/admin/upload/:problemId"
+				element={
+					isAuthenticated && user?.role === "admin" ? (
+						<AdminUpload />
+					) : (
+						<Navigate to="/" />
+					)
+				}
+			/>
+			<Route path="/problem/:problemId" element={<ProblemPage />}></Route>
 		</Routes>
 	);
 };

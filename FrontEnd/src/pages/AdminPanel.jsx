@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Home, RefreshCw, Zap } from 'lucide-react';
+import { Plus, Edit, Trash2, Home, RefreshCw, Zap, Video } from 'lucide-react';
 import { NavLink } from 'react-router';
 
 function AdminPanel() {
@@ -32,6 +32,15 @@ function AdminPanel() {
       color: 'btn-error',
       bgColor: 'bg-error/10',
       route: '/admin/delete'
+    },
+    {
+      id: 'video',
+      title: 'Manage Solution Videos',
+      description: 'Upload or delete solution videos for problems',
+      icon: Video,
+      color: 'btn-success',
+      bgColor: 'bg-success/10',
+      route: '/admin/video'
     }
   ];
 
