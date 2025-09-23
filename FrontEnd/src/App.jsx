@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router";
-import Homepage from "./pages/Homepage";
+// import Homepage from "./pages/Homepage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,6 +11,9 @@ import AdminDelete from "./components/AdminDelete";
 import ProblemPage from "./pages/ProblemPage";
 import AdminVideo from "./components/AdminVideo";
 import AdminUpload from "./components/AdminUpload";
+import Homepage from "./pages/Homepage";
+import HeroPage from "./pages/HeroPage";
+// import HeroPage from "./pages/HeroPage";
 // import MonacoEditor from "./pages/MonacoEditor";
 
 const App = () => {
@@ -26,7 +29,7 @@ const App = () => {
 			<Route
 				path="/"
 				element={
-					isAuthenticated ? <Homepage></Homepage> : <Navigate to="/signup" />
+					isAuthenticated ? <Homepage></Homepage> : <HeroPage/>
 				}
 			></Route>
 			<Route
