@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Home, RefreshCw, Zap, Video } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Plus, Edit, Trash2, Video, Shield, ArrowRight } from 'lucide-react';
 import { NavLink } from 'react-router';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Navbar from '../components/Navbar';
 
 function AdminPanel() {
-  const [selectedOption, setSelectedOption] = useState(null);
-
   const adminOptions = [
     {
       id: 'create',
       title: 'Create Problem',
       description: 'Add a new coding problem to the platform',
       icon: Plus,
-      color: 'btn-success',
-      bgColor: 'bg-success/10',
+      gradient: 'from-emerald-500 to-green-600',
+      hoverGradient: 'hover:from-emerald-600 hover:to-green-700',
+      iconBg: 'bg-emerald-500/20',
+      iconColor: 'text-emerald-400',
       route: '/admin/create'
     },
     {
@@ -20,8 +24,10 @@ function AdminPanel() {
       title: 'Update Problem',
       description: 'Edit existing problems and their details',
       icon: Edit,
-      color: 'btn-warning',
-      bgColor: 'bg-warning/10',
+      gradient: 'from-blue-500 to-indigo-600',
+      hoverGradient: 'hover:from-blue-600 hover:to-indigo-700',
+      iconBg: 'bg-blue-500/20',
+      iconColor: 'text-blue-400',
       route: '/admin/update'
     },
     {
@@ -29,76 +35,101 @@ function AdminPanel() {
       title: 'Delete Problem',
       description: 'Remove problems from the platform',
       icon: Trash2,
-      color: 'btn-error',
-      bgColor: 'bg-error/10',
+      gradient: 'from-red-500 to-pink-600',
+      hoverGradient: 'hover:from-red-600 hover:to-pink-700',
+      iconBg: 'bg-red-500/20',
+      iconColor: 'text-red-400',
       route: '/admin/delete'
     },
     {
       id: 'video',
-      title: 'Manage Solution Videos',
+      title: 'Manage Videos',
       description: 'Upload or delete solution videos for problems',
       icon: Video,
-      color: 'btn-success',
-      bgColor: 'bg-success/10',
+      gradient: 'from-purple-500 to-indigo-600',
+      hoverGradient: 'hover:from-purple-600 hover:to-indigo-700',
+      iconBg: 'bg-purple-500/20',
+      iconColor: 'text-purple-400',
       route: '/admin/video'
     }
   ];
 
   return (
-    <div className="min-h-screen bg-base-200">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-base-content mb-4">
-            Admin Panel
-          </h1>
-          <p className="text-base-content/70 text-lg">
-            Manage coding problems on your platform
-          </p>
-        </div>
+    <div className="min-h-screen bg-zinc-900">
+      <Navbar />
 
-        {/* Admin Options Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {adminOptions.map((option) => {
-            const IconComponent = option.icon;
-            return (
-              <div
-                key={option.id}
-                className="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 cursor-pointer"
-              >
-                <div className="card-body items-center text-center p-8">
-                  {/* Icon */}
-                  <div className={`${option.bgColor} p-4 rounded-full mb-4`}>
-                    <IconComponent size={32} className="text-base-content" />
-                  </div>
-                  
-                  {/* Title */}
-                  <h2 className="card-title text-xl mb-2">
-                    {option.title}
-                  </h2>
-                  
-                  {/* Description */}
-                  <p className="text-base-content/70 mb-6">
-                    {option.description}
-                  </p>
-                  
-                  {/* Action Button */}
-                  <div className="card-actions">
-                    <div className="card-actions">
-                    <NavLink 
-                    to={option.route}
-                   className={`btn ${option.color} btn-wide`}
-                   >
-                   {option.title}
-                   </NavLink>
-                   </div>
-                  </div>
-                </div>
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/5 via-blue-400/3 to-transparent rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-900/5 via-indigo-400/3 to-transparent rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 pt-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-12"
+          >
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                <Shield className="w-6 h-6 text-white" />
               </div>
-            );
-          })}
-        </div>
+              <h1 className="text-4xl lg:text-5xl font-bold text-white">
+                Admin Panel
+              </h1>
+            </div>
+            <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+              Manage coding problems, solutions, and content on your platform
+            </p>
+          </motion.div>
 
+          {/* Admin Options Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {adminOptions.map((option, index) => {
+              const IconComponent = option.icon;
+              return (
+                <motion.div
+                  key={option.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm hover:bg-zinc-800/70 hover:border-zinc-600/50 transition-all duration-300 group h-full">
+                    <CardContent className="p-6 flex flex-col h-full">
+                      {/* Icon */}
+                      <div className={`${option.iconBg} w-16 h-16 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                        <IconComponent className={`w-8 h-8 ${option.iconColor}`} />
+                      </div>
+
+                      {/* Title */}
+                      <h2 className="text-xl font-bold text-white mb-2">
+                        {option.title}
+                      </h2>
+
+                      {/* Description */}
+                      <p className="text-zinc-400 mb-6 flex-grow">
+                        {option.description}
+                      </p>
+
+                      {/* Action Button */}
+                      <NavLink to={option.route} className="mt-auto">
+                        <Button
+                          className={`w-full bg-gradient-to-r ${option.gradient} ${option.hoverGradient} text-white font-semibold shadow-lg transition-all duration-200 group/btn`}
+                        >
+                          <span>Get Started</span>
+                          <ArrowRight className="ml-2 w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        </Button>
+                      </NavLink>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+        </div>
       </div>
     </div>
   );
