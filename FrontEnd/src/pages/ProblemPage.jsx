@@ -615,7 +615,7 @@ const ProblemPage = () => {
                       size="sm"
                       onClick={handleRun}
                       disabled={loading}
-                      className="border-zinc-600 text-zinc-300 hover:bg-zinc-700 hover:text-white disabled:opacity-50"
+                      className="border-zinc-600 text-zinc-800 hover:bg-zinc-700 hover:text-white disabled:opacity-50"
                     >
                       {loading ? (
                         <div className="w-4 h-4 border-2 border-zinc-400/30 border-t-zinc-400 rounded-full animate-spin mr-2" />

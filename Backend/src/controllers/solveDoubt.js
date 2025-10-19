@@ -8,8 +8,16 @@ export const solveDoubt = async (req, res) => {
 		res.setHeader('Content-Type', 'text/plain; charset=utf-8');
 		res.setHeader('Cache-Control', 'no-cache');
 		res.setHeader('Connection', 'keep-alive');
-		res.setHeader('Access-Control-Allow-Origin', '*');
-		res.setHeader('Access-Control-Allow-Headers', 'Cache-Control');
+		// res.setHeader('Access-Control-Allow-Origin', '*');
+		// res.setHeader('Access-Control-Allow-Headers', 'Cache-Control');
+		const allowedOrigins = [process.env.APP_URL,'http://localhost:5173', 'http://localhost:3000'];
+        const origin = req.headers.origin;
+        if (allowedOrigins.includes(origin)) {
+            res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Credentials', 'true');
+        }
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        
 		
 		// Debug: Log the incoming request
 		console.log('Request body:', { 

@@ -102,64 +102,6 @@ function Homepage() {
             </p>
           </motion.div>
 
-          {/* Statistics Cards */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
-          >
-            <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <BookOpen className="w-5 h-5 text-indigo-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">{stats.total}</div>
-                <div className="text-xs text-zinc-400">Total Problems</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Trophy className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div className="text-2xl font-bold text-emerald-400">{stats.solved}</div>
-                <div className="text-xs text-zinc-400">Solved</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Target className="w-5 h-5 text-green-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">{stats.easy}</div>
-                <div className="text-xs text-zinc-400">Easy</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Zap className="w-5 h-5 text-yellow-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">{stats.medium}</div>
-                <div className="text-xs text-zinc-400">Medium</div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
-              <CardContent className="p-4 text-center">
-                <div className="flex items-center justify-center mb-2">
-                  <Clock className="w-5 h-5 text-red-400" />
-                </div>
-                <div className="text-2xl font-bold text-white">{stats.hard}</div>
-                <div className="text-xs text-zinc-400">Hard</div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
           {/* Search and Filters */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -13,6 +13,8 @@ import AdminVideo from "./components/AdminVideo";
 import AdminUpload from "./components/AdminUpload";
 import Homepage from "./pages/Homepage";
 import HeroPage from "./pages/HeroPage";
+import ProfilePage from "./pages/ProfilePage";
+import is from "zod/v4/locales/is.cjs";
 // import HeroPage from "./pages/HeroPage";
 // import MonacoEditor from "./pages/MonacoEditor";
 
@@ -28,9 +30,7 @@ const App = () => {
 		<Routes>
 			<Route
 				path="/"
-				element={
-					isAuthenticated ? <Homepage></Homepage> : <HeroPage/>
-				}
+				element={isAuthenticated ? <Homepage></Homepage> : <HeroPage />}
 			></Route>
 			<Route
 				path="/login"
@@ -42,6 +42,12 @@ const App = () => {
 				path="/signup"
 				element={
 					isAuthenticated ? <Navigate to="/" /> : <SignupPage></SignupPage>
+				}
+			></Route>
+			<Route
+				path="/profile"
+				element={
+					 <ProfilePage></ProfilePage> 
 				}
 			></Route>
 			<Route
