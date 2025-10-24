@@ -14,7 +14,7 @@ import AdminUpload from "./components/AdminUpload";
 import Homepage from "./pages/Homepage";
 import HeroPage from "./pages/HeroPage";
 import ProfilePage from "./pages/ProfilePage";
-import is from "zod/v4/locales/is.cjs";
+import LearnWithAI from "./pages/LearnWithAI";
 // import HeroPage from "./pages/HeroPage";
 // import MonacoEditor from "./pages/MonacoEditor";
 
@@ -38,10 +38,17 @@ const App = () => {
 					isAuthenticated ? <Navigate to="/" /> : <LoginPage></LoginPage>
 				}
 			></Route>
+			
 			<Route
 				path="/signup"
 				element={
 					isAuthenticated ? <Navigate to="/" /> : <SignupPage></SignupPage>
+				}
+			></Route>
+			<Route
+				path="/learn-with-ai"
+				element={
+					isAuthenticated ? <LearnWithAI /> :  <LoginPage></LoginPage>
 				}
 			></Route>
 			<Route

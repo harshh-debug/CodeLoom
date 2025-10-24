@@ -48,6 +48,10 @@ const userSchema = new Schema(
 			required: true,
 			minLength: 6,
 		},
+		avatar: {
+			type: String,
+			default: null,
+		},
 	},
 	{ timestamps: true }
 );

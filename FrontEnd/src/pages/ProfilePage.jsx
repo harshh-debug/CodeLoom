@@ -1,18 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  User,
   Calendar,
-  Trophy,
   Target,
   CheckCircle,
   Clock,
   Edit,
   ChevronRight,
   Award,
-  Zap,
-  TrendingUp
+  TrendingUp,
+  Shuffle
 } from 'lucide-react';
 import { NavLink } from 'react-router';
 import axiosClient from '../utils/axiosClient';
@@ -20,9 +18,13 @@ import Navbar from '../components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { updateUserAvatar } from '../authSlice';
 
 const ProfilePage = () => {
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  
   const [stats, setStats] = useState({
     total: 0,
     easy: 0,
@@ -32,7 +34,10 @@ const ProfilePage = () => {
   const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState('');
+  const [savingAvatar, setSavingAvatar] = useState(false);
+
+  const [avatarSeed, setAvatarSeed] = useState(user?.firstName || '');
+  const [selectedStyle, setSelectedStyle] = useState('adventurer');
 
   const avatarStyles = [
     'adventurer',
@@ -50,9 +55,16 @@ const ProfilePage = () => {
     fetchRecentActivity();
   }, []);
 
+
+  useEffect(() => {
+    if (showAvatarModal) {
+      setAvatarSeed(user?.firstName || '');
+      setSelectedStyle('adventurer');
+    }
+  }, [showAvatarModal, user?.firstName]);
+
   const fetchUserStats = async () => {
     try {
-      // Fetch user's solved problems
       const { data } = await axiosClient.get('/problem/problemSolvedByUser');
       
       const easy = data.filter(p => p.difficulty === 'easy').length;
@@ -74,12 +86,41 @@ const ProfilePage = () => {
 
   const fetchRecentActivity = async () => {
     try {
-      // Fetch recent submissions
       const { data } = await axiosClient.get('/problem/problemSolvedByUser');
-      // Take last 5 solved problems
       setRecentActivity(data.slice(-5).reverse());
     } catch (error) {
       console.error('Error fetching activity:', error);
+    }
+  };
+
+
+  const getDicebearUrl = (style, seed) => {
+    const safeSeed = encodeURIComponent((seed || 'user').trim());
+    return `https://api.dicebear.com/9.x/${style}/svg?seed=${safeSeed}`;
+  };
+
+  
+  const randomizeSeed = () => {
+    const randomWords = [
+      'cosmic', 'stellar', 'quantum', 'nexus', 'cipher', 
+      'phoenix', 'aurora', 'nebula', 'zenith', 'odyssey',
+      'pixel', 'matrix', 'binary', 'vector', 'infinity'
+    ];
+    const randomWord = randomWords[Math.floor(Math.random() * randomWords.length)];
+    const randomNum = Math.floor(Math.random() * 9999);
+    setAvatarSeed(`${randomWord}${randomNum}`);
+  };
+
+  const saveAvatar = async (avatarUrl) => {
+    try {
+      setSavingAvatar(true);
+      await dispatch(updateUserAvatar(avatarUrl)).unwrap();
+      setShowAvatarModal(false);
+    } catch (error) {
+      console.error('Error saving avatar:', error);
+      alert('Failed to save avatar. Please try again.');
+    } finally {
+      setSavingAvatar(false);
     }
   };
 
@@ -108,14 +149,11 @@ const ProfilePage = () => {
     });
   };
 
-  const saveAvatar = async (avatarUrl) => {
-    try {
-      await axiosClient.patch('/user/avatar', { avatarUrl });
-      setSelectedAvatar(avatarUrl);
-      setShowAvatarModal(false);
-    } catch (error) {
-      console.error('Error saving avatar:', error);
+  const getCurrentAvatarUrl = () => {
+    if (user?.avatar) {
+      return user.avatar;
     }
+    return `https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.firstName}`;
   };
 
   if (loading) {
@@ -148,17 +186,11 @@ const ProfilePage = () => {
               {/* Avatar */}
               <div className="relative group">
                 <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-xl shadow-indigo-500/25 overflow-hidden">
-                  {selectedAvatar || user?.avatar ? (
-                    <img 
-                      src={selectedAvatar || user?.avatar || `https://api.dicebear.com/9.x/adventurer/svg?seed=${user?.firstName}`} 
-                      alt={user?.firstName}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-5xl font-bold text-white">
-                      {user?.firstName?.charAt(0)?.toUpperCase()}
-                    </span>
-                  )}
+                  <img 
+                    src={getCurrentAvatarUrl()} 
+                    alt={user?.firstName}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <button
                   onClick={() => setShowAvatarModal(true)}
@@ -181,14 +213,6 @@ const ProfilePage = () => {
                     <span className="text-zinc-300">
                       Joined {formatDate(user?.createdAt || new Date())}
                     </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-yellow-400" />
-                    <span className="text-zinc-300">Rank: #-</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-indigo-400" />
-                    <span className="text-zinc-300">Streak: - days</span>
                   </div>
                 </div>
               </div>
@@ -357,7 +381,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* Avatar Selection Modal */}
+      {/* ENHANCED Avatar Selection Modal */}
       <AnimatePresence>
         {showAvatarModal && (
           <motion.div
@@ -365,45 +389,139 @@ const ProfilePage = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setShowAvatarModal(false)}
+            onClick={() => !savingAvatar && setShowAvatarModal(false)}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl"
+              className="w-full max-w-3xl max-h-[90vh] overflow-y-auto"
             >
               <Card className="bg-zinc-800 border-zinc-700">
                 <CardContent className="p-6">
-                  <h2 className="text-xl font-bold text-white mb-6">Choose Your Avatar</h2>
+                  <h2 className="text-xl font-bold text-white mb-6">Customize Your Avatar</h2>
                   
-                  <div className="grid grid-cols-4 gap-4">
-                    {avatarStyles.map((style) => {
-                      const avatarUrl = `https://api.dicebear.com/9.x/${style}/svg?seed=${user?.firstName}`;
-                      return (
-                        <button
-                          key={style}
-                          onClick={() => saveAvatar(avatarUrl)}
-                          className="aspect-square rounded-xl overflow-hidden border-2 border-zinc-700 hover:border-indigo-500 transition-all hover:scale-105"
+                  {/* Customization Controls */}
+                  <div className="mb-6 space-y-4">
+                    {/* Style Selector */}
+                    <div>
+                      <label className="text-sm text-zinc-400 mb-2 block">Avatar Style</label>
+                      <select
+                        value={selectedStyle}
+                        onChange={(e) => setSelectedStyle(e.target.value)}
+                        className="w-full bg-zinc-900 border border-zinc-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                      >
+                        {avatarStyles.map((style) => (
+                          <option key={style} value={style}>
+                            {style.charAt(0).toUpperCase() + style.slice(1).replace('-', ' ')}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Seed Input with Randomize */}
+                    <div>
+                      <label className="text-sm text-zinc-400 mb-2 block">
+                        Seed (customize your avatar)
+                      </label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          placeholder="Enter any text..."
+                          value={avatarSeed}
+                          onChange={(e) => setAvatarSeed(e.target.value)}
+                          className="flex-1 bg-zinc-900 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-indigo-500"
+                        />
+                        <Button
+                          type="button"
+                          onClick={randomizeSeed}
+                          className="bg-indigo-500 hover:bg-indigo-600 text-white"
+                          title="Generate random seed"
                         >
-                          <img 
-                            src={avatarUrl} 
-                            alt={style}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      );
-                    })}
+                          <Shuffle className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        Tip: Change the seed text to create unique avatars!
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="mt-6 flex justify-end gap-2">
+                  {/* Live Preview */}
+                  <div className="mb-6">
+                    <label className="text-sm text-zinc-400 mb-3 block">Preview</label>
+                    <div className="flex justify-center p-6 bg-zinc-900/50 rounded-lg border border-zinc-700/50">
+                      <motion.div
+                        key={`${selectedStyle}-${avatarSeed}`}
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.2 }}
+                        className="w-40 h-40 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-xl shadow-indigo-500/25"
+                      >
+                        <img
+                          src={getDicebearUrl(selectedStyle, avatarSeed)}
+                          alt="Avatar Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  {/* Style Gallery */}
+                  <div className="mb-6">
+                    <label className="text-sm text-zinc-400 mb-3 block">
+                      Quick Style Selection (using current seed)
+                    </label>
+                    <div className="grid grid-cols-4 gap-3">
+                      {avatarStyles.map((style) => {
+                        const avatarUrl = getDicebearUrl(style, avatarSeed);
+                        const isCurrentStyle = selectedStyle === style;
+                        
+                        return (
+                          <button
+                            key={style}
+                            onClick={() => setSelectedStyle(style)}
+                            className={`aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 ${
+                              isCurrentStyle
+                                ? 'border-indigo-500 ring-2 ring-indigo-500/50'
+                                : 'border-zinc-700 hover:border-indigo-500'
+                            }`}
+                          >
+                            <img
+                              src={avatarUrl}
+                              alt={style}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {savingAvatar && (
+                    <div className="mb-4 text-center text-indigo-400 text-sm flex items-center justify-center gap-2">
+                      <div className="w-4 h-4 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin"></div>
+                      Saving avatar...
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex justify-end gap-3">
                     <Button
                       variant="outline"
                       onClick={() => setShowAvatarModal(false)}
-                      className="border-zinc-600 text-zinc-300 hover:bg-zinc-700 hover:text-white"
+                      disabled={savingAvatar}
+                      className="border-zinc-600 text-zinc-800 hover:bg-zinc-700 hover:text-white disabled:opacity-50"
                     >
                       Cancel
+                    </Button>
+                    <Button
+                      onClick={() => saveAvatar(getDicebearUrl(selectedStyle, avatarSeed))}
+                      disabled={savingAvatar || !avatarSeed.trim()}
+                      className="bg-indigo-500 hover:bg-indigo-600 text-white disabled:opacity-50"
+                    >
+                      Save Avatar
                     </Button>
                   </div>
                 </CardContent>

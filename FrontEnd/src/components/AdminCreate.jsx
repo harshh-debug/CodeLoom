@@ -27,7 +27,7 @@ const problemSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   difficulty: z.enum(['easy', 'medium', 'hard']),
-  tags: z.enum(['array', 'linkedList', 'graph', 'dp']),
+  // tags: z.enum(['array', 'linkedList', 'graph', 'dp','String']),
   visibleTestCases: z.array(
     z.object({
       input: z.string().min(1, 'Input is required'),
@@ -227,6 +227,7 @@ function AdminCreate() {
                           <option value="linkedList">Linked List</option>
                           <option value="graph">Graph</option>
                           <option value="dp">Dynamic Programming</option>
+                          <option value="dp">String</option>
                         </select>
                       </div>
                     </div>

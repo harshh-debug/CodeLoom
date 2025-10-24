@@ -62,9 +62,9 @@ export const loginUser = async (req, res) => {
 		const token = jwt.sign(
 			{ _id: user._id, emailId: emailId, role: user.role },
 			process.env.JWT_SECRET,
-			{ expiresIn: "1h" }
+			{ expiresIn: "10h" }
 		);
-		res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+		res.cookie("token", token, { maxAge: 10 * 60 * 60 * 1000 });
 		res.status(201).json({
 			user: reply,
 			message: "Login Successfully",
@@ -117,4 +117,47 @@ export const deleteProfile = async (req, res) => {
 	} catch (error) {
 		res.status(500).send("Internal server Error : " + error);
 	}
+};
+
+export const updateUserAvatar = async (req, res) => {
+    try {
+        const { avatarUrl } = req.body;
+        const userId = req.result._id; // This comes from userMiddleware
+
+        // Validate avatar URL
+        if (!avatarUrl || typeof avatarUrl !== 'string') {
+            return res.status(400).json({
+                success: false,
+                message: 'Valid avatar URL is required'
+            });
+        }
+
+        // Update user's avatar in database
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { avatar: avatarUrl },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Avatar updated successfully',
+            avatar: updatedUser.avatar
+        });
+
+    } catch (error) {
+        console.error('Error updating avatar:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update avatar',
+            error: error.message
+        });
+    }
 };

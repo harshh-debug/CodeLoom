@@ -10,6 +10,7 @@ import {
 
 export const createProblem = async (req, res) => {
 	if (!req.body) {
+		console.log("Request body is missing");
 		return res
 			.status(400)
 			.send(
@@ -40,6 +41,7 @@ export const createProblem = async (req, res) => {
 		!startCode ||
 		!refrenceSolution
 	) {
+		console.log("Missing required fields in request body");
 		return res
 			.status(400)
 			.send(

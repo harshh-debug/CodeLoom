@@ -1,19 +1,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axiosClient from './utils/axiosClient'
+import axiosClient from './utils/axiosClient';
 
 export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-    const response =  await axiosClient.post('/user/register', userData);
-    return response.data.user;
+      const response = await axiosClient.post('/user/register', userData);
+      return response.data.user;
     } catch (error) {
-      console.error(error)
+      console.error(error);
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
-
 
 export const loginUser = createAsyncThunk(
   'auth/login',
@@ -51,6 +50,19 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+// ADD THIS NEW ASYNC THUNK for avatar update
+export const updateUserAvatar = createAsyncThunk(
+  'auth/updateAvatar',
+  async (avatarUrl, { rejectWithValue }) => {
+    try {
+      const response = await axiosClient.patch('/user/avatar', { avatarUrl });
+      return response.data.avatar;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -60,6 +72,12 @@ const authSlice = createSlice({
     error: null
   },
   reducers: {
+    // ADD THIS REDUCER for immediate UI update
+    updateAvatar: (state, action) => {
+      if (state.user) {
+        state.user.avatar = action.payload;
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -79,7 +97,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
       })
-  
+
       // Login User Cases
       .addCase(loginUser.pending, (state) => {
         state.loading = true;
@@ -96,7 +114,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
       })
-  
+
       // Check Auth Cases
       .addCase(checkAuth.pending, (state) => {
         state.loading = true;
@@ -106,7 +124,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = !!action.payload;
         state.user = action.payload;
-        state.error = null; 
+        state.error = null;
       })
       .addCase(checkAuth.rejected, (state, action) => {
         state.loading = false;
@@ -114,7 +132,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
       })
-  
+
       // Logout User Cases
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
@@ -131,8 +149,23 @@ const authSlice = createSlice({
         state.error = action.payload?.message || 'Something went wrong';
         state.isAuthenticated = false;
         state.user = null;
+      })
+
+      // ADD THESE CASES for avatar update
+      .addCase(updateUserAvatar.pending, (state) => {
+        state.loading = false; // Don't show global loading for avatar
+      })
+      .addCase(updateUserAvatar.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.avatar = action.payload;
+        }
+      })
+      .addCase(updateUserAvatar.rejected, (state, action) => {
+        state.error = action.payload || 'Failed to update avatar';
       });
   }
 });
 
+// EXPORT the new action and thunk
+export const { updateAvatar } = authSlice.actions;
 export default authSlice.reducer;

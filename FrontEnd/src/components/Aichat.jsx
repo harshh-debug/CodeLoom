@@ -5,6 +5,7 @@ import { Send, Square, Bot, User as UserIcon } from 'lucide-react';
 import axiosClient from "../utils/axiosClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ReactMarkdown from "react-markdown";
 
 function ChatAi({ problem }) {
     const [messages, setMessages] = useState([]);
@@ -31,7 +32,7 @@ function ChatAi({ problem }) {
     const onSubmit = async (data) => {
         const userMessage = { role: 'user', parts: [{ text: data.message }] };
         const updatedMessages = [...messages, userMessage];
-        
+
         setMessages(updatedMessages);
         setIsLoading(true);
         setCurrentStreamingMessage('');
@@ -74,9 +75,8 @@ function ChatAi({ problem }) {
             try {
                 while (true) {
                     const { done, value } = await reader.read();
-                    
                     if (done) break;
-                    
+
                     const chunk = decoder.decode(value, { stream: true });
                     accumulatedResponse += chunk;
                     setCurrentStreamingMessage(accumulatedResponse);
@@ -84,12 +84,12 @@ function ChatAi({ problem }) {
 
                 // Add the complete response to messages
                 if (accumulatedResponse.trim()) {
-                    setMessages(prev => [...prev, { 
-                        role: 'model', 
-                        parts: [{ text: accumulatedResponse }] 
+                    setMessages(prev => [...prev, {
+                        role: 'model',
+                        parts: [{ text: accumulatedResponse }]
                     }]);
                 }
-                
+
             } catch (readError) {
                 if (readError.name !== 'AbortError') {
                     console.error("Stream reading error:", readError);
@@ -104,16 +104,16 @@ function ChatAi({ problem }) {
                 console.log('Request was aborted');
                 return;
             }
-            
+
             console.error("API Error:", error);
-            
+
             let errorMessage = "Sorry, I encountered an error. Please try again.";
             if (error.message.includes('Authentication failed')) {
                 errorMessage = "Authentication failed. Please log in again.";
             }
-            
-            setMessages(prev => [...prev, { 
-                role: 'model', 
+
+            setMessages(prev => [...prev, {
+                role: 'model',
                 parts: [{ text: errorMessage }]
             }]);
         } finally {
@@ -178,7 +178,26 @@ function ChatAi({ problem }) {
                                                 : "bg-zinc-800/50 text-zinc-200 border border-zinc-700/50 rounded-tl-sm"
                                         }`}>
                                             <div className="whitespace-pre-wrap text-sm leading-relaxed break-words">
-                                                {msg.parts[0].text}
+                                                {msg.role === "model" ? (
+                                                    <ReactMarkdown
+                                                        components={{
+                                                            p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                                                            pre: ({ node, ...props }) => (
+                                                                <pre className="bg-black/80 rounded-lg p-3 my-2 overflow-x-auto text-sm" {...props} />
+                                                            ),
+                                                            code: ({ node, ...props }) => (
+                                                                <code className="bg-zinc-900 rounded px-1 py-0.5 text-indigo-300" {...props} />
+                                                            ),
+                                                            ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-2" {...props} />,
+                                                            ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-2" {...props} />,
+                                                            li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                                                        }}
+                                                    >
+                                                        {msg.parts[0].text}
+                                                    </ReactMarkdown>
+                                                ) : (
+                                                    msg.parts[0].text
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -198,7 +217,22 @@ function ChatAi({ problem }) {
                                     <div className="flex-1 max-w-[85%]">
                                         <div className="inline-block px-4 py-3 rounded-2xl rounded-tl-sm bg-zinc-800/50 text-zinc-200 border border-zinc-700/50">
                                             <div className="whitespace-pre-wrap text-sm leading-relaxed break-words">
-                                                {currentStreamingMessage}
+                                                <ReactMarkdown
+                                                    components={{
+                                                        p: ({ node, ...props }) => <p className="mb-2" {...props} />,
+                                                        pre: ({ node, ...props }) => (
+                                                            <pre className="bg-black/80 rounded-lg p-3 my-2 overflow-x-auto text-sm" {...props} />
+                                                        ),
+                                                        code: ({ node, ...props }) => (
+                                                            <code className="bg-zinc-900 rounded px-1 py-0.5 text-indigo-300" {...props} />
+                                                        ),
+                                                        ul: ({ node, ...props }) => <ul className="list-disc pl-6 mb-2" {...props} />,
+                                                        ol: ({ node, ...props }) => <ol className="list-decimal pl-6 mb-2" {...props} />,
+                                                        li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+                                                    }}
+                                                >
+                                                    {currentStreamingMessage}
+                                                </ReactMarkdown>
                                                 <span className="inline-block w-1 h-4 bg-indigo-400 ml-1 animate-pulse"></span>
                                             </div>
                                         </div>
@@ -239,15 +273,15 @@ function ChatAi({ problem }) {
                     <div className="flex-1">
                         <Input
                             placeholder="Ask about the problem approach, hints, or concepts..."
-                            {...register("message", { 
-                                required: "Message is required", 
+                            {...register("message", {
+                                required: "Message is required",
                                 minLength: { value: 2, message: "Message must be at least 2 characters" }
                             })}
                             disabled={isLoading}
                             className="bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-indigo-400 focus:ring-indigo-400/20"
                         />
                     </div>
-                    
+
                     {isLoading ? (
                         <Button
                             type="button"

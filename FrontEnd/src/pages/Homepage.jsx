@@ -1,43 +1,44 @@
-import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Filter, 
-  CheckCircle, 
-  Search, 
-  Code, 
+import { useEffect, useState } from "react";
+import { NavLink } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Filter,
+  CheckCircle,
+  Search,
+  Code,
   Clock,
   Trophy,
   Target,
   BookOpen,
-  Zap
-} from 'lucide-react';
-import axiosClient from '../utils/axiosClient';
-import Navbar from '../components/Navbar';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+  Zap,
+} from "lucide-react";
+import axiosClient from "../utils/axiosClient";
+import Navbar from "../components/Navbar";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 function Homepage() {
   const { user } = useSelector((state) => state.auth);
   const [problems, setProblems] = useState([]);
   const [solvedProblems, setSolvedProblems] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [tagSearch, setTagSearch] = useState("");
   const [filters, setFilters] = useState({
-    difficulty: 'all',
-    tag: 'all',
-    status: 'all' 
+    difficulty: "all",
+    tag: "all",
+    status: "all",
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const { data } = await axiosClient.get('/problem/getAllProblem');
+        const { data } = await axiosClient.get("/problem/getAllProblem");
         setProblems(data);
       } catch (error) {
-        console.error('Error fetching problems:', error);
+        console.error("Error fetching problems:", error);
       } finally {
         setLoading(false);
       }
@@ -45,10 +46,10 @@ function Homepage() {
 
     const fetchSolvedProblems = async () => {
       try {
-        const { data } = await axiosClient.get('/problem/problemSolvedByUser');
+        const { data } = await axiosClient.get("/problem/problemSolvedByUser");
         setSolvedProblems(data);
       } catch (error) {
-        console.error('Error fetching solved problems:', error);
+        console.error("Error fetching solved problems:", error);
       }
     };
 
@@ -56,39 +57,57 @@ function Homepage() {
     if (user) fetchSolvedProblems();
   }, [user]);
 
-  const filteredProblems = problems.filter(problem => {
-    const difficultyMatch = filters.difficulty === 'all' || problem.difficulty === filters.difficulty;
-    const tagMatch = filters.tag === 'all' || problem.tags === filters.tag;
-    const statusMatch = filters.status === 'all' || 
-                      (filters.status === 'solved' ? solvedProblems.some(sp => sp._id === problem._id) : 
-                       filters.status === 'unsolved' ? !solvedProblems.some(sp => sp._id === problem._id) : true);
-    const searchMatch = searchTerm === '' || 
-                       problem.title.toLowerCase().includes(searchTerm.toLowerCase());
+  // Get all unique tags for autocomplete dropdown
+  const allTags = Array.from(
+    new Set(problems.flatMap((problem) => Array.isArray(problem.tags) ? problem.tags : [problem.tags]))
+  );
+
+  const filteredProblems = problems.filter((problem) => {
+    const difficultyMatch =
+      filters.difficulty === "all" || problem.difficulty === filters.difficulty;
+
+    const tagMatch =
+      filters.tag === "all" ||
+      (problem.tags &&
+        Array.isArray(problem.tags) &&
+        problem.tags.some(
+          (t) => t.toLowerCase() === filters.tag.toLowerCase()
+        ));
+
+    const statusMatch =
+      filters.status === "all" ||
+      (filters.status === "solved"
+        ? solvedProblems.some((sp) => sp._id === problem._id)
+        : filters.status === "unsolved"
+        ? !solvedProblems.some((sp) => sp._id === problem._id)
+        : true);
+
+    const searchMatch =
+      searchTerm === "" ||
+      problem.title.toLowerCase().includes(searchTerm.toLowerCase());
+
     return difficultyMatch && tagMatch && statusMatch && searchMatch;
   });
 
   const stats = {
     total: problems.length,
     solved: solvedProblems.length,
-    easy: problems.filter(p => p.difficulty === 'easy').length,
-    medium: problems.filter(p => p.difficulty === 'medium').length,
-    hard: problems.filter(p => p.difficulty === 'hard').length
+    easy: problems.filter((p) => p.difficulty === "easy").length,
+    medium: problems.filter((p) => p.difficulty === "medium").length,
+    hard: problems.filter((p) => p.difficulty === "hard").length,
   };
 
   return (
     <div className="min-h-screen bg-zinc-900">
       <Navbar />
 
-      {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/5 via-blue-400/3 to-transparent rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-900/5 via-indigo-400/3 to-transparent rounded-full blur-3xl"></div>
       </div>
 
-      {/* Main Content */}
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Welcome Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -112,7 +131,7 @@ function Homepage() {
             <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row gap-4">
-                  {/* Search */}
+                  {/* Problem Title Search */}
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 w-4 h-4" />
                     <Input
@@ -123,39 +142,80 @@ function Homepage() {
                     />
                   </div>
 
-                  {/* Filters */}
+                  {/* Tag Search Autocomplete */}
+                  <div className="relative flex-1">
+                    <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 w-4 h-4" />
+                    <Input
+                      type="text"
+                      placeholder="Filter by tag..."
+                      value={tagSearch}
+                      onChange={(e) => setTagSearch(e.target.value)}
+                      className="pl-10 bg-zinc-900/50 border-zinc-700 text-white placeholder:text-zinc-500 focus:border-indigo-400 focus:ring-indigo-400/20"
+                      autoComplete="off"
+                    />
+                    {tagSearch.length > 0 && (
+                      <div className="absolute z-10 left-0 right-0 mt-2 py-2 bg-zinc-800 rounded shadow border border-zinc-700 max-h-40 overflow-y-auto">
+                        {allTags
+                          .filter((t) =>
+                            t.toLowerCase().includes(tagSearch.toLowerCase())
+                          )
+                          .map((tag) => (
+                            <div
+                              key={tag}
+                              className="px-4 py-1 cursor-pointer hover:bg-indigo-500/20 text-zinc-200"
+                              onClick={() => {
+                                setFilters({ ...filters, tag });
+                                setTagSearch("");
+                              }}
+                            >
+                              {tag}
+                            </div>
+                          ))}
+                        {allTags.filter((t) =>
+                          t.toLowerCase().includes(tagSearch.toLowerCase())
+                        ).length === 0 && (
+                          <div className="px-4 py-1 text-zinc-400">No tags found</div>
+                        )}
+                      </div>
+                    )}
+                    {/* Show active tag filter badge */}
+                    {filters.tag !== "all" && (
+                      <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex gap-1">
+                        <Badge
+                          className="border-zinc-600 text-zinc-300 bg-zinc-700/40 cursor-pointer"
+                          onClick={() => setFilters({ ...filters, tag: "all" })}
+                        >
+                          {filters.tag} &#x2715;
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Other Filters */}
                   <div className="flex flex-wrap gap-3">
-                    <select 
+                    <select
                       className="px-4 py-2 bg-zinc-900/50 border border-zinc-700 rounded-md text-white text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/20"
                       value={filters.status}
-                      onChange={(e) => setFilters({...filters, status: e.target.value})}
+                      onChange={(e) =>
+                        setFilters({ ...filters, status: e.target.value })
+                      }
                     >
                       <option value="all">All Status</option>
                       <option value="solved">Solved</option>
                       <option value="unsolved">Unsolved</option>
                     </select>
 
-                    <select 
+                    <select
                       className="px-4 py-2 bg-zinc-900/50 border border-zinc-700 rounded-md text-white text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/20"
                       value={filters.difficulty}
-                      onChange={(e) => setFilters({...filters, difficulty: e.target.value})}
+                      onChange={(e) =>
+                        setFilters({ ...filters, difficulty: e.target.value })
+                      }
                     >
                       <option value="all">All Difficulties</option>
                       <option value="easy">Easy</option>
                       <option value="medium">Medium</option>
                       <option value="hard">Hard</option>
-                    </select>
-
-                    <select 
-                      className="px-4 py-2 bg-zinc-900/50 border border-zinc-700 rounded-md text-white text-sm focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400/20"
-                      value={filters.tag}
-                      onChange={(e) => setFilters({...filters, tag: e.target.value})}
-                    >
-                      <option value="all">All Tags</option>
-                      <option value="array">Array</option>
-                      <option value="linkedList">Linked List</option>
-                      <option value="graph">Graph</option>
-                      <option value="dp">Dynamic Programming</option>
                     </select>
                   </div>
                 </div>
@@ -178,15 +238,21 @@ function Homepage() {
               <Card className="bg-zinc-800/50 border-zinc-700/50 backdrop-blur-sm">
                 <CardContent className="p-12 text-center">
                   <Code className="w-12 h-12 text-zinc-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">No problems found</h3>
-                  <p className="text-zinc-400">Try adjusting your filters or search terms</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    No problems found
+                  </h3>
+                  <p className="text-zinc-400">
+                    Try adjusting your filters or search terms
+                  </p>
                 </CardContent>
               </Card>
             ) : (
               <AnimatePresence>
                 {filteredProblems.map((problem, index) => {
-                  const isSolved = solvedProblems.some(sp => sp._id === problem._id);
-                  
+                  const isSolved = solvedProblems.some(
+                    (sp) => sp._id === problem._id
+                  );
+
                   return (
                     <motion.div
                       key={problem._id}
@@ -199,8 +265,8 @@ function Homepage() {
                           <div className="flex items-center justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-3">
-                                <NavLink 
-                                  to={`/problem/${problem._id}`} 
+                                <NavLink
+                                  to={`/problem/${problem._id}`}
                                   className="text-lg font-semibold text-white hover:text-indigo-400 transition-colors group-hover:text-indigo-400"
                                 >
                                   {problem.title}
@@ -215,20 +281,27 @@ function Homepage() {
                                   </motion.div>
                                 )}
                               </div>
-                              
-                              <div className="flex items-center gap-2">
-                                <Badge 
+
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <Badge
                                   variant="secondary"
-                                  className={`${getDifficultyBadgeColor(problem.difficulty)} border-0 text-white font-medium`}
+                                  className={`${getDifficultyBadgeColor(
+                                    problem.difficulty
+                                  )} border-0 text-white font-medium`}
                                 >
                                   {problem.difficulty}
                                 </Badge>
-                                <Badge 
-                                  variant="outline"
-                                  className="border-zinc-600 text-zinc-300 hover:bg-zinc-700"
-                                >
-                                  {problem.tags}
-                                </Badge>
+                                <div className="flex flex-wrap gap-2">
+                                  {problem.tags.map((tag, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="outline"
+                                      className="border-zinc-600 text-zinc-300"
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
                               </div>
                             </div>
 
@@ -250,7 +323,6 @@ function Homepage() {
             )}
           </motion.div>
 
-          {/* Results Count */}
           {!loading && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -269,14 +341,14 @@ function Homepage() {
 
 const getDifficultyBadgeColor = (difficulty) => {
   switch (difficulty?.toLowerCase()) {
-    case 'easy': 
-      return 'bg-green-500/20 text-green-400 border-green-500/30';
-    case 'medium': 
-      return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    case 'hard': 
-      return 'bg-red-500/20 text-red-400 border-red-500/30';
-    default: 
-      return 'bg-zinc-500/20 text-zinc-400 border-zinc-500/30';
+    case "easy":
+      return "bg-green-500/20 text-green-400 border-green-500/30";
+    case "medium":
+      return "bg-yellow-500/20 text-yellow-400 border-yellow-500/30";
+    case "hard":
+      return "bg-red-500/20 text-red-400 border-red-500/30";
+    default:
+      return "bg-zinc-500/20 text-zinc-400 border-zinc-500/30";
   }
 };
 
