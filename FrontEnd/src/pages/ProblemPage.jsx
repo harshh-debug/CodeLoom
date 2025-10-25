@@ -57,7 +57,7 @@ const ProblemPage = () => {
 	const { user } = useSelector((state) => state.auth);
 	const [problem, setProblem] = useState(null);
 	const [allProblems, setAllProblems] = useState([]);
-	const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+	const [selectedLanguage, setSelectedLanguage] = useState("cpp");
 	const [code, setCode] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [runResult, setRunResult] = useState(null);
@@ -604,7 +604,7 @@ const ProblemPage = () => {
 								{/* Language Selector */}
 								<div className="flex justify-between items-center p-4 border-b border-zinc-700/50 bg-zinc-800/30 flex-shrink-0">
 									<div className="flex gap-2">
-										{["javascript", "java", "cpp", "python"].map((lang) => (
+										{["cpp", "java", "python", "javascript"].map((lang) => (
 											<button
 												key={lang}
 												onClick={() => handleLanguageChange(lang)}

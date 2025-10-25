@@ -13,19 +13,23 @@ export const registerUser = async (req, res) => {
 		req.body.role = "user";
 
 		const user = await User.create(req.body);
-		const reply={
-			firstName:user.firstName,
+		const reply = {
+			firstName: user.firstName,
 			...(user?.lastName && { lastName: user.lastName }),
-			emailId:user.emailId,
-			_id:user._id
-
-		}
+			emailId: user.emailId,
+			_id: user._id,
+		};
 		const token = jwt.sign(
 			{ _id: user._id, emailId: emailId, role: "user" },
 			process.env.JWT_SECRET,
-			{ expiresIn: "1h" }
+			{ expiresIn: "10h" }
 		);
-		res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+		res.cookie("token", token, {
+			maxAge: 10 * 60 * 60 * 1000,
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		});
 
 		res.status(201).json({
 			user: reply,
@@ -52,19 +56,23 @@ export const loginUser = async (req, res) => {
 		if (!match) {
 			return res.status(401).send("Invalid email or password");
 		}
-		const reply={
-			firstName:user.firstName,
+		const reply = {
+			firstName: user.firstName,
 			...(user?.lastName && { lastName: user.lastName }),
-			emailId:user.emailId,
-			_id:user._id
-
-		}
+			emailId: user.emailId,
+			_id: user._id,
+		};
 		const token = jwt.sign(
 			{ _id: user._id, emailId: emailId, role: user.role },
 			process.env.JWT_SECRET,
 			{ expiresIn: "10h" }
 		);
-		res.cookie("token", token, { maxAge: 10 * 60 * 60 * 1000 });
+		res.cookie("token", token, {
+			maxAge: 10 * 60 * 60 * 1000,
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		});
 		res.status(201).json({
 			user: reply,
 			message: "Login Successfully",
@@ -81,7 +89,12 @@ export const logoutUser = async (req, res) => {
 		await redisClient.set(`token:${token}`, "Blocked");
 		await redisClient.expire(`token:${token}`, payload.exp);
 
-		res.cookie("token", null, { expires: new Date(Date.now()) });
+		res.cookie("token", "", {
+			expires: new Date(Date.now()),
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		});
 		res.status(200).send("Logged out successfully");
 	} catch (error) {
 		res.status(500).send("Error logging out user: " + error.message);
@@ -100,9 +113,14 @@ export const adminRegister = async (req, res) => {
 		const token = jwt.sign(
 			{ _id: user._id, emailId: emailId, role: req.body.role },
 			process.env.JWT_SECRET,
-			{ expiresIn: "1h" }
+			{ expiresIn: "10h" }
 		);
-		res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+		res.cookie("token", token, {
+			maxAge: 10 * 60 * 60 * 1000,
+			httpOnly: true,
+			secure: process.env.NODE_ENV === "production",
+			sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+		});
 
 		res.status(201).send(`${user.role} Registered Successfully`);
 	} catch (error) {
@@ -120,44 +138,43 @@ export const deleteProfile = async (req, res) => {
 };
 
 export const updateUserAvatar = async (req, res) => {
-    try {
-        const { avatarUrl } = req.body;
-        const userId = req.result._id; // This comes from userMiddleware
+	try {
+		const { avatarUrl } = req.body;
+		const userId = req.result._id; // This comes from userMiddleware
 
-        // Validate avatar URL
-        if (!avatarUrl || typeof avatarUrl !== 'string') {
-            return res.status(400).json({
-                success: false,
-                message: 'Valid avatar URL is required'
-            });
-        }
+		// Validate avatar URL
+		if (!avatarUrl || typeof avatarUrl !== "string") {
+			return res.status(400).json({
+				success: false,
+				message: "Valid avatar URL is required",
+			});
+		}
 
-        // Update user's avatar in database
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            { avatar: avatarUrl },
-            { new: true, runValidators: true }
-        );
+		// Update user's avatar in database
+		const updatedUser = await User.findByIdAndUpdate(
+			userId,
+			{ avatar: avatarUrl },
+			{ new: true, runValidators: true }
+		);
 
-        if (!updatedUser) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
+		if (!updatedUser) {
+			return res.status(404).json({
+				success: false,
+				message: "User not found",
+			});
+		}
 
-        res.status(200).json({
-            success: true,
-            message: 'Avatar updated successfully',
-            avatar: updatedUser.avatar
-        });
-
-    } catch (error) {
-        console.error('Error updating avatar:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to update avatar',
-            error: error.message
-        });
-    }
+		res.status(200).json({
+			success: true,
+			message: "Avatar updated successfully",
+			avatar: updatedUser.avatar,
+		});
+	} catch (error) {
+		console.error("Error updating avatar:", error);
+		res.status(500).json({
+			success: false,
+			message: "Failed to update avatar",
+			error: error.message,
+		});
+	}
 };

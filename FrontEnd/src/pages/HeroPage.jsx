@@ -19,18 +19,44 @@ import { useNavigate } from "react-router";
 
 const HeroPage = () => {
 	const [currentCode, setCurrentCode] = useState("");
-	const [selectedLanguage, setSelectedLanguage] = useState("python");
+	const [selectedLanguage, setSelectedLanguage] = useState("cpp");
 	const [isTyping, setIsTyping] = useState(false);
 	const navigate = useNavigate();
 
 	const languages = [
+		{ id: "cpp", name: "C++", color: "text-blue-400" },
+		{ id: "java", name: "Java", color: "text-red-400" },
 		{ id: "python", name: "Python", color: "text-yellow-400" },
 		{ id: "javascript", name: "JavaScript", color: "text-yellow-500" },
-		{ id: "java", name: "Java", color: "text-red-400" },
-		{ id: "cpp", name: "C++", color: "text-blue-400" },
 	];
 
 	const codeSteps = {
+		cpp: [
+			"vector<int> twoSum(vector<int>& nums, int target) {",
+			"    // Brute force approach - O(n²)",
+			"    for (int i = 0; i < nums.size(); i++) {",
+			"        for (int j = i + 1; j < nums.size(); j++) {",
+			"            if (nums[i] + nums[j] == target) {",
+			"                return {i, j};",
+			"            }",
+			"        }",
+			"    }",
+			"    return {};",
+			"}",
+		],
+		java: [
+			"public int[] twoSum(int[] nums, int target) {",
+			"    // Brute force approach - O(n²)",
+			"    for (int i = 0; i < nums.length; i++) {",
+			"        for (int j = i + 1; j < nums.length; j++) {",
+			"            if (nums[i] + nums[j] == target) {",
+			"                return new int[]{i, j};",
+			"            }",
+			"        }",
+			"    }",
+			"    return new int[]{};",
+			"}",
+		],
 		python: [
 			"def twoSum(nums, target):",
 			"    # Brute force approach - O(n²)",
@@ -51,32 +77,6 @@ const HeroPage = () => {
 			"        }",
 			"    }",
 			"    return [];",
-			"}",
-		],
-		java: [
-			"public int[] twoSum(int[] nums, int target) {",
-			"    // Brute force approach - O(n²)",
-			"    for (int i = 0; i < nums.length; i++) {",
-			"        for (int j = i + 1; j < nums.length; j++) {",
-			"            if (nums[i] + nums[j] == target) {",
-			"                return new int[]{i, j};",
-			"            }",
-			"        }",
-			"    }",
-			"    return new int[]{};",
-			"}",
-		],
-		cpp: [
-			"vector<int> twoSum(vector<int>& nums, int target) {",
-			"    // Brute force approach - O(n²)",
-			"    for (int i = 0; i < nums.size(); i++) {",
-			"        for (int j = i + 1; j < nums.size(); j++) {",
-			"            if (nums[i] + nums[j] == target) {",
-			"                return {i, j};",
-			"            }",
-			"        }",
-			"    }",
-			"    return {};",
 			"}",
 		],
 	};
@@ -181,8 +181,12 @@ const HeroPage = () => {
 								Sign In
 							</Button>
 
-							<Button className="bg-emerald-500 text-white font-semibold hover:bg-emerald-600" onClick={() => {navigate("/signup")}}>
-								
+							<Button
+								className="bg-emerald-500 text-white font-semibold hover:bg-emerald-600"
+								onClick={() => {
+									navigate("/signup");
+								}}
+							>
 								Sign Up
 							</Button>
 						</motion.div>
@@ -232,7 +236,9 @@ const HeroPage = () => {
 								<Button
 									size="lg"
 									className="bg-gradient-to-br from-indigo-300 to-blue-900 hover:bg-indigo-700 text-white font-semibold px-8 py-4 text-lg group "
-									onClick={()=>{navigate("/signup")}}
+									onClick={() => {
+										navigate("/signup");
+									}}
 								>
 									Begin Your Journey
 									<ArrowRight className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform " />
