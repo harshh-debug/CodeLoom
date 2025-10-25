@@ -4,12 +4,13 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Harsh Joshi",
   "license": "ISC",
-  "description": "",
+  "description": "Backend for CodeLoom- DSA platform",
   "dependencies": {
     "@google/genai": "^1.16.0",
     "axios": "^1.12.2",

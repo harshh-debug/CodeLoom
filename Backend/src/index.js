@@ -15,7 +15,7 @@ import videoRouter from "./routes/videoRoute.js";
 const app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
     credentials: true 
 }))
 
@@ -31,8 +31,9 @@ const initializeConnection = async () => {
 	try {
 		await Promise.all([dbconnect(), redisClient.connect()]);
 		console.log("Database connection established successfully.");
-		app.listen(process.env.PORT, () => {
-			console.log("Server is running on port " + process.env.PORT);
+		const PORT = process.env.PORT || 3000;
+		app.listen(PORT, () => {
+		console.log(`Server is running on port ${PORT}`);
 		});
 	} catch (error) {
 		console.error("Error establishing connections:", error);
