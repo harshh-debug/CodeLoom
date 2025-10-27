@@ -54,7 +54,7 @@ const App = () => {
 			<Route
 				path="/profile"
 				element={
-					 <ProfilePage></ProfilePage> 
+					isAuthenticated ?  <ProfilePage></ProfilePage> : <LoginPage></LoginPage>
 				}
 			></Route>
 			<Route

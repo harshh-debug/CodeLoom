@@ -18,6 +18,7 @@ import Navbar from "../components/Navbar";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import Footer from "@/components/Footer";
 
 function Homepage() {
   const { user } = useSelector((state) => state.auth);
@@ -335,6 +336,7 @@ function Homepage() {
           )}
         </div>
       </div>
+      <Footer></Footer>
     </div>
   );
 }
