@@ -9,7 +9,7 @@ export const learnTopic = async (req, res) => {
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         
-        const allowedOrigins = [process.env.APP_URL, 'http://localhost:5173', 'http://localhost:3000'];
+        const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:3000',"https://codeloom-platform.vercel.app"];
         const origin = req.headers.origin;
         if (allowedOrigins.includes(origin)) {
             res.setHeader('Access-Control-Allow-Origin', origin);

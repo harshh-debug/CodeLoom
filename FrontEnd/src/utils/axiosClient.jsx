@@ -1,7 +1,7 @@
 import axios from 'axios'
 const BackendUrl= import.meta.env.VITE_BACKEND_URL;
 const axiosClient = axios.create({
-    baseURL:BackendUrl|| 'http://localhost:3000',
+    baseURL:"https://codeloom-backend-3pj7.onrender.com",
     withCredentials:true,
     headers:{
         'Content-Type':'application/json'
