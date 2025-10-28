@@ -31,6 +31,11 @@ app.use(
 
 app.use(cookieParser());
 app.use(express.json());
+
+app.get("/ping", (req, res) => {
+  res.status(200).json({ message: "Server is awake" });
+});
+
 app.use("/user", authRouter);
 app.use("/problem", problemRouter);
 app.use("/submission", submitRouter);
